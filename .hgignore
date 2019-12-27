@@ -1,0 +1,18 @@
+syntax: glob
+Dependencies/Ogre
+build/
+bin/Debug
+bin/MinSizeRel
+bin/Release
+bin/RelWithDebInfo
+bin/Data/Hlms/Common
+bin/Data/Hlms/Pbs
+bin/Data/Hlms/Unlit
+bin/Data/Materials/Common
+bin/Data/Materials/HDR
+bin/Data/Materials/LocalCubemaps
+bin/Data/Compute
+bin/Data/DebugPack.zip
+bin/Data/resources2.cfg
+CMakeLists.txt.user
+.git

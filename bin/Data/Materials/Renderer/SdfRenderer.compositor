@@ -1,0 +1,34 @@
+compositor_node SdfRenderer/Node
+{
+	in 0 rt_renderwindow
+
+	texture rtt target_width target_height PFG_RGBA8_UNORM_SRGB uav reinterpretable
+
+	target rtt
+	{
+		pass compute
+		{
+			job SdfRenderer
+			uav 0 rtt write PFG_RGBA8_UNORM
+		}
+	}
+
+	target rt_renderwindow
+	{
+		pass render_quad
+		{
+			load { all dont_care }
+			material Ogre/Copy/4xFP32
+			input 0 rtt
+		}
+		pass render_scene
+		{
+			rq_first 250
+		}
+	}
+}
+
+workspace SdfRenderer/Workspace
+{
+	connect_external 0 SdfRenderer/Node 0
+}
