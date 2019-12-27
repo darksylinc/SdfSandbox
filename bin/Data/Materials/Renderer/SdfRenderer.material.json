@@ -7,7 +7,7 @@
             "thread_groups" : [1, 1, 1],
 
             "source" : "SdfRenderer_cs",
-            "pieces" : ["CrossPlatformSettings_piece_all", "UavCrossPlatform_piece_all", "sRGB.any", "SdfRenderer_cs.any"],
+            "pieces" : ["CrossPlatformSettings_piece_all", "UavCrossPlatform_piece_all", "sRGB.any", "CustomSdf_piece_cs.any", "SdfRenderer_cs.any"],
             "inform_shader_of_texture_data_change" : true,
 
             "thread_groups_based_on_uav" : 0,

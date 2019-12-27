@@ -312,7 +312,7 @@ float2 map( in float3 pos )
 {
 	float2 res = float2( 1e10, 0.0 );
 
-	if( pos.x > -2.5 && pos.x < 0.5 )
+	/*if( pos.x > -2.5 && pos.x < 0.5 )
 	{
 		res = opU( res,
 				   float2( sdPyramid( 2.5 * ( pos - float3( -1.0, 0.15, -3.0 ) ), 1.1 ) / 2.5, 13.56 ) );
@@ -361,7 +361,9 @@ float2 map( in float3 pos )
 											 float3( -0.1, 0.3, 0.1 ), 0.15, 0.05 ),
 								51.7 ) );
 		res = opU( res, float2( sdRoundCone( pos - float3( 2.0, 0.20, 1.0 ), 0.2, 0.1, 0.3 ), 37.0 ) );
-	}
+	}*/
+
+	@insertpiece( CustomSDF )
 
 	// res = min( res, sdBox(pos-float3(0.5,0.4,-0.5), float3(2.0,0.41,2.0) ) );
 	return res;
