@@ -1,4 +1,120 @@
+float sdPlane( float3 p )
+float sdSphere( float3 p, float s )
+float sdBox( float3 p, float3 b )
+float sdEllipsoid( in float3 p, in float3 r )  // approximated
+float sdTorus( float3 p, float2 t )
+float sdCappedTorus( in float3 p, in float2 sc, in float ra, in float rb )
+float sdHexPrism( float3 p, float2 h )
+float sdCapsule( float3 p, float3 a, float3 b, float r )
+float sdRoundCone( in float3 p, in float r1, float r2, float h )
+float sdRoundCone( float3 p, float3 a, float3 b, float r1, float r2 )
+float sdTriPrism( float3 p, float2 h )
+float sdCylinder( float3 p, float2 h ) // vertical
+float sdCylinder( float3 p, float3 a, float3 b, float r ) // arbitrary orientation
+float sdCone( in float3 p, in float3 c ) // vertical
+float sdCone( in float3 p, in float h, in float r1, in float r2 )
+// http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float sdCone( float3 p, float3 a, float3 b, float ra, float rb )
+float sdSolidAngle( float3 pos, float2 c, float ra ) // c is the sin/cos of the desired cone angle
+float sdOctahedron( float3 p, float s )
+float sdPyramid( in float3 p, in float h )
+
+@piece( CustomSDFHeader )
+
+float2 squareFunc( float2 val )
+{
+	float2 intPart;
+	val.x = val.x < 0.0 ? (-val.x + 0.5) : val.x;
+	val.y = val.y < 0.0 ? (-val.y + 0.5) : val.y;
+	val = modf( val, intPart );
+	return float2( val.x < 0.5 ? 1.0 : -1.0, val.y < 0.5 ? 1.0 : -1.0 );
+}
+
+float2 squareFunc01( float2 val, float2 range )
+{
+	float2 intPart;
+	val = modf( abs( val ), intPart );
+	val = abs( val * 2.0 - 1.0 );
+	return float2( val.x < range.x ? 1.0 : 0.0, val.y < range.y ? 1.0 : 0.0 );
+}
+
+float2 squareFuncSmooth( float2 val, float2 exponent )
+{
+	float2 intPart;
+	val = modf( abs( val ), intPart );
+	val = val * 2.0 - 1.0;
+	val = 1.0 - val * val;
+	return float2( pow( val.x, exponent.x ), pow( val.y, exponent.y ) );
+}
+
+float drawTiles( float2 p, float freq )
+{
+	float2 wave = cos( p * PI * freq );
+	wave = wave * wave;
+	wave.x = pow( wave.x, 0.5 );
+	wave.y = pow( wave.y, 0.5 );
+	wave *= 8.0;
+	wave = saturate( wave ) * .5;
+
+	return min( wave.x, wave.y );
+}
+
+float drawLights( float2 p, float freq, float depth, float wideness )
+{
+	float2 intPart;
+	p = modf( abs( p * freq ), intPart );
+	p = (p - 0.5) * 2.0;
+	float d = length( p );
+	d = saturate( d * depth - wideness );
+	return d * 0.5 - 0.5;
+}
+
+float sdBox2( float3 p, float3 b )
+{
+	p.y += pow( abs( sin( p.z * 2.5 ) ) + 1e-6, 256.0 ) * b.y * 1;
+	float3 d = abs( p ) - b;
+	//if( d.y > 0.0 )
+		//d.y += ;
+	return min( max( d.x, max( d.y, d.z ) ), 0.0 ) + length( max( d, 0.0 ) );
+}
+
+float sdBoxTiledFormA( float3 p, float3 b )
+{
+	p.y -= drawTiles( p.xz, 1.0 ) * b.y;
+	p.y -= drawLights( p.xz, 2.0, 4.0, 1.5 ) * b.y * 2.;
+	float3 d = abs( p ) - b;
+	return min( max( d.x, max( d.y, d.z ) ), 0.0 ) + length( max( d, 0.0 ) );
+}
+
+float sdBoxTiledFormB( float3 p, float3 b )
+{
+	float tileSize = 10.0; // Size of each tile
+	p.y -= drawTiles( p.xz, tileSize ) * b.y;
+	float2 maskTileDistance = float2( 2.0, 5.0 ); // Distance between lights
+	// Mask the lights
+	float2 mask = squareFunc01( p.xz * (tileSize / 2) / maskTileDistance + 0.5, 0.5 / maskTileDistance );
+	// Draw the lights and mask them
+	p.y -= drawLights( p.xz + 0.5 / tileSize, tileSize, 4.0, 1.5 ) * b.y * 0.75 * mask.x * mask.y;
+	float3 d = abs( p ) - b;
+	return min( max( d.x, max( d.y, d.z ) ), 0.0 ) + length( max( d, 0.0 ) );
+}
+
+float sdBoxTiled( float3 p, float3 b )
+{
+	float2 tileSize = float2( 2.25, 2.25 ); // Size of each tile
+	float2 tileA = squareFuncSmooth( p.xz * 1.5, tileSize );
+	float2 tileB = squareFuncSmooth( p.xz * 1.5, tileSize );
+	tileA = saturate( tileA * 32.0 );
+	tileB = saturate( tileB * 32.0 );
+	p.y -= min( tileA.x, tileA.y ) * b.y * 1.0;
+	float3 d = abs( p ) - b;
+	return min( max( d.x, max( d.y, d.z ) ), 0.0 ) + length( max( d, 0.0 ) );
+}
+@end
 
 @piece( CustomSDF )
-	res = opU( res, float2( sdBox( pos - float3( 1.0, 0.25, 0.0 ), float3( 0.25 ) ), 3.0 ) );
+	float3 p = pos;
+	//res = opU( res, float2( sdBox2( pos - float3( 0.0, 0.125, 0.0 ), float3( 2.0, 0.0625 / 2, 2.5 ) ), 3.0 ) );
+	//res = opU( res, float2( sdPyramid( p, 0.2 ), 3.0 ) );
+	res = opU( res, float2( sdBoxTiled( pos - float3( 0.0, 0.125, 0.0 ), float3( 2.0, 0.0625 / 2, 2.5 ) ), 3.0 ) );
 @end

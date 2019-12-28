@@ -26,6 +26,8 @@
 
 @piece( HeaderCS )
 
+#define PI 3.14159265359f
+
 #if HW_PERFORMANCE == 0
 #	define AA 1
 #else
@@ -295,6 +297,8 @@ float sdPyramid( in float3 p, in float h )
 	;
 }
 
+@insertpiece( CustomSDFHeader )
+
 //------------------------------------------------------------------
 
 float2 opU( float2 d1, float2 d2 )
@@ -386,7 +390,7 @@ float2 castRay( in float3 ro, in float3 rd )
 {
 	float2 res = float2( -1.0, -1.0 );
 
-	float tmin = 1.0;
+	float tmin = 0.1;
 	float tmax = 20.0;
 
 	// raytrace floor plane
@@ -399,7 +403,7 @@ float2 castRay( in float3 ro, in float3 rd )
 	// else return res;
 
 	// raymarch primitives
-	float2 tb = iBox( ro - float3( 0.5, 0.4, -0.5 ), rd, float3( 2.0, 0.41, 3.0 ) );
+	float2 tb = iBox( ro - float3( 0.5, 0.4, -0.5 ), rd, float3( 5.0, 4., 5.0 ) );
 	if( tb.x < tb.y && tb.y > 0.0 && tb.x < tmax )
 	{
 		tmin = max( tb.x, tmin );

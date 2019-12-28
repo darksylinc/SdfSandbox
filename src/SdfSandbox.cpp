@@ -48,6 +48,7 @@ namespace Demo
 	public:
 		SdfSandboxGraphicsSystem( GameState *gameState ) : GraphicsSystem( gameState )
 		{
+			mAlwaysAskForConfig = false;
 			mResourcePath = "../Data/";
 
 			// It's recommended that you set this path to:

@@ -55,6 +55,9 @@ namespace Demo
 	void SdfSandboxGameState::createScene01()
 	{
 		mCameraController = new CameraController( mGraphicsSystem, false );
+		mCameraController->mCameraBaseSpeed = 2.0f;
+
+		mGraphicsSystem->getCamera()->setPosition( 0, 1.0, 2.0 );
 
 		Ogre::HlmsCompute *hlmsCompute = mGraphicsSystem->getRoot()->getHlmsManager()->getComputeHlms();
 		m_sdfJob = hlmsCompute->findComputeJob( "SdfRenderer" );
